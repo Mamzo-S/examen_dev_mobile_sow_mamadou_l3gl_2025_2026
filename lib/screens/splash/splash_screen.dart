@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sunu_task/core/constants/app_strings.dart';
 import 'package:sunu_task/screens/home/home_screen.dart';
+import 'package:sunu_task/providers/app_provider.dart';
 import 'package:sunu_task/screens/onboarding/onboarding_screen.dart';
 import 'package:sunu_task/services/storage_service.dart';
 
@@ -55,10 +57,14 @@ class _SplashScreenState extends State<SplashScreen> {
     _timer = Timer( Duration(seconds: 3), _navigateToNextScreen);
   }
 
-  void _navigateToNextScreen() {
-    if(!mounted) return;
-    final bool onboardingComplete = StorageService.instance.isOnboardingComplete;
+  void _navigateToNextScreen() async {
+    final appProvider = context.read<AppProvider>();
 
+    await appProvider.init();
+
+    final bool onboardingComplete = appProvider.isOnboardingComplete;
+
+    if(!mounted) return;
     /*Navigator.pushReplacement(context,
       MaterialPageRoute<void>(
       builder: (context) => onboardingComplete

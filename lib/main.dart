@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sunu_task/core/theme/app_theme.dart';
+import 'package:sunu_task/providers/app_provider.dart';
 import 'package:sunu_task/screens/splash/splash_screen.dart';
 import 'package:sunu_task/services/storage_service.dart';
 
@@ -9,6 +11,7 @@ void main() async {
   await StorageService.instance.init();
 
   runApp(const SunuTask());
+  create: (_) => AppProvider();
 }
 
 class SunuTask extends StatelessWidget {
@@ -17,13 +20,16 @@ class SunuTask extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light,
-      home: SplashScreen(),
+    return ChangeNotifierProvider(
+      create: (_) => AppProvider(),
+      child: MaterialApp(
+        title: 'Sunu Task',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.light,
+        home: const SplashScreen(),
+      ),
     );
   }
 }

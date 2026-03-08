@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sunu_task/core/constants/app_colors.dart';
 import 'package:sunu_task/core/constants/app_strings.dart';
 import 'package:sunu_task/models/OnboardingItem.dart';
+import 'package:sunu_task/providers/app_provider.dart';
 import 'package:sunu_task/screens/home/home_screen.dart';
 import 'package:sunu_task/services/storage_service.dart';
 
@@ -61,13 +63,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  Future<void> _completeOnboarding() async{
-    await StorageService.instance.setOnboardingComplete(true);
-    
-    if(mounted){
+  Future<void> _completeOnboarding() async {
+    await context.read<AppProvider>().completeOnboarding();
+    if (mounted) {
       Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen())
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
       );
     }
   }
