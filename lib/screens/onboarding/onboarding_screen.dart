@@ -4,6 +4,7 @@ import 'package:sunu_task/core/constants/app_colors.dart';
 import 'package:sunu_task/core/constants/app_strings.dart';
 import 'package:sunu_task/models/OnboardingItem.dart';
 import 'package:sunu_task/providers/app_provider.dart';
+import 'package:sunu_task/screens/auth/login_screen.dart';
 import 'package:sunu_task/screens/home/home_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -68,7 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const LoginScreen(),
         ),
       );
     }
