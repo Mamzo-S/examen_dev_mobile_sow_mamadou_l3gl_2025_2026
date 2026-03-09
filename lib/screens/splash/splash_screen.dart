@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sunu_task/core/constants/app_strings.dart';
+import 'package:sunu_task/screens/auth/login_screen.dart';
 import 'package:sunu_task/screens/home/home_screen.dart';
 import 'package:sunu_task/providers/app_provider.dart';
 import 'package:sunu_task/screens/onboarding/onboarding_screen.dart';
@@ -79,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen> {
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
           onboardingComplete
-              ? const HomeScreen()
+              ? const LoginScreen()
               : const OnboardingScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
