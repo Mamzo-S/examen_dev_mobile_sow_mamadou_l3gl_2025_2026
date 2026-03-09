@@ -92,7 +92,7 @@ class StorageService {
     users.add(userToSave);
 
     final encoded = jsonEncode(
-      users.map((u) => u.toMap()).toList(),
+      users.map((u) => _toSafeMap(u)).toList(),
     );
 
     await _prefs.setString(_keyUsers, encoded);
@@ -125,7 +125,7 @@ class StorageService {
     }
 
     final encoded = jsonEncode(
-      users.map((u) => u.toMap()).toList(),
+      users.map((u) => _toSafeMap(u)).toList(),
     );
 
     await _prefs.setString(_keyUsers, encoded);
@@ -156,5 +156,15 @@ class StorageService {
       }
     }
     return null;
+  }
+
+  Map<String, dynamic> _toSafeMap(User user) {
+    final map = Map<String, dynamic>.from(user.toMap());
+    map['avatar'] = map['avatar'] ?? '';
+    final createdAt = map['createdAt'];
+    map['createdAt'] = createdAt is DateTime
+        ? createdAt.toIso8601String()
+        : (createdAt ?? DateTime.now().toIso8601String()).toString();
+    return map;
   }
 }
