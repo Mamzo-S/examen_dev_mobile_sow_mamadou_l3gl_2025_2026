@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sunu_task/models/User.dart';
+import 'package:uuid/uuid.dart';
 
 /**
  * Pattern Singleton:
@@ -40,7 +44,8 @@ class StorageService {
 
   // ======== Cles de Stockage =========
   static const String _keyOnboardingConmplete = 'onboarding_complete';
-
+  static const String _keyUsers = 'users';
+  static const String _keyCurrentUserId = 'current_user_id';
 
   bool get isOnboardingComplete {
     return _prefs.getBool(_keyOnboardingConmplete) ?? false;
@@ -50,4 +55,106 @@ class StorageService {
     await _prefs.setBool(_keyOnboardingConmplete, value);
   }
 
+  // ===== Recuperer tous les users =====
+  Future<List<User>> getUsers() async {
+    final data = _prefs.getString(_keyUsers);
+
+    if (data == null) {
+      return [];
+    }
+
+    final List list = jsonDecode(data);
+
+    return list.map((e) {
+      final map = Map<String, dynamic>.from(e as Map);
+      map['avatar'] = map['avatar'] ?? '';
+      map['createdAt'] =
+          (map['createdAt'] ?? DateTime.now().toIso8601String()).toString();
+      return User.fromMap(map);
+    }).toList();
+  }
+
+  // ===== Ajouter un user =====
+  Future<void> createUser(User user) async {
+    final users = await getUsers();
+
+    final userToSave = user.id.trim().isEmpty
+        ? User(
+            id: const Uuid().v4(),
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            avatar: user.avatar,
+            createdAt: user.createdAt,
+          )
+        : user;
+
+    users.add(userToSave);
+
+    final encoded = jsonEncode(
+      users.map((u) => u.toMap()).toList(),
+    );
+
+    await _prefs.setString(_keyUsers, encoded);
+  }
+
+  // ===== Modifier un user =====
+  Future<void> updateUser(User user) async {
+    final users = await getUsers();
+    final userToSave = user.id.trim().isEmpty
+        ? User(
+            id: const Uuid().v4(),
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            avatar: user.avatar,
+            createdAt: user.createdAt,
+          )
+        : user;
+
+    bool found = false;
+    for (int i = 0; i < users.length; i++) {
+      if (users[i].id == userToSave.id) {
+        users[i] = userToSave;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      users.add(userToSave);
+    }
+
+    final encoded = jsonEncode(
+      users.map((u) => u.toMap()).toList(),
+    );
+
+    await _prefs.setString(_keyUsers, encoded);
+  }
+
+  // ===== Sauvegarder l'utilisateur connecté =====
+  Future<void> setCurrentUser(User? user) async {
+    if (user == null) {
+      await _prefs.remove(_keyCurrentUserId);
+      return;
+    }
+    await _prefs.setString(_keyCurrentUserId, user.id);
+  }
+
+  // ===== Recuperer l'utilisateur connecté =====
+  Future<User?> getCurrentUser() async {
+    final id = _prefs.getString(_keyCurrentUserId);
+
+    if (id == null) {
+      return null;
+    }
+
+    final users = await getUsers();
+
+    for (var user in users) {
+      if (user.id == id) {
+        return user;
+      }
+    }
+    return null;
+  }
 }
