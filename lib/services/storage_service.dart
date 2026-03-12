@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sunu_task/models/project.dart';
 import 'package:sunu_task/models/User.dart';
 import 'package:uuid/uuid.dart';
 
@@ -46,6 +47,7 @@ class StorageService {
   static const String _keyOnboardingConmplete = 'onboarding_complete';
   static const String _keyUsers = 'users';
   static const String _keyCurrentUserId = 'current_user_id';
+  static const String _keyProjects = 'projects';
 
   bool get isOnboardingComplete {
     return _prefs.getBool(_keyOnboardingConmplete) ?? false;
@@ -166,5 +168,97 @@ class StorageService {
         ? createdAt.toIso8601String()
         : (createdAt ?? DateTime.now().toIso8601String()).toString();
     return map;
+  }
+
+  // =====================
+  // crud project
+  // =====================
+
+  Future<List<Project>> getProjects() async {
+    final data = _prefs.getString(_keyProjects);
+    if (data == null || data.trim().isEmpty) return [];
+
+    try {
+      final decoded = jsonDecode(data);
+      if (decoded is! List) return [];
+
+      return decoded.map((e) {
+        return Project.fromMap(Map<String, dynamic>.from(e as Map));
+      }).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<List<Project>> getProjectsByUserId(String userId) async {
+    final projects = await getProjects();
+    return projects.where((p) => p.userId == userId).toList();
+  }
+
+  Future<Project?> getProjectById(String projectId) async {
+    final projects = await getProjects();
+    for (final project in projects) {
+      if (project.id == projectId) return project;
+    }
+    return null;
+  }
+
+  Future<void> createProject(Project project) async {
+    final projects = await getProjects();
+
+    final projectToSave = project.id.trim().isEmpty
+        ? Project(
+            id: const Uuid().v4(),
+            userId: project.userId,
+            name: project.name,
+            description: project.description,
+            colorValue: project.colorValue,
+            createdAt: project.createdAt,
+          )
+        : project;
+
+    projects.add(projectToSave);
+    await saveProjects(projects);
+  }
+
+  Future<void> updateProject(Project project) async {
+    final projects = await getProjects();
+
+    final projectToSave = project.id.trim().isEmpty
+        ? Project(
+            id: const Uuid().v4(),
+            userId: project.userId,
+            name: project.name,
+            description: project.description,
+            colorValue: project.colorValue,
+            createdAt: project.createdAt,
+          )
+        : project;
+
+    bool found = false;
+    for (int i = 0; i < projects.length; i++) {
+      if (projects[i].id == projectToSave.id) {
+        projects[i] = projectToSave;
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      projects.add(projectToSave);
+    }
+
+    await saveProjects(projects);
+  }
+
+  Future<void> saveProjects(List<Project> projects) async {
+    final encoded = jsonEncode(projects.map((p) => p.toMap()).toList());
+    await _prefs.setString(_keyProjects, encoded);
+  }
+
+  Future<void> deleteProject(String projectId) async {
+    final projects = await getProjects();
+    projects.removeWhere((p) => p.id == projectId);
+    await saveProjects(projects);
   }
 }
