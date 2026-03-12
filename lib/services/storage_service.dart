@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sunu_task/models/project.dart';
 import 'package:sunu_task/models/User.dart';
+import 'package:sunu_task/models/task.dart';
 import 'package:uuid/uuid.dart';
 
 /**
@@ -48,6 +49,7 @@ class StorageService {
   static const String _keyUsers = 'users';
   static const String _keyCurrentUserId = 'current_user_id';
   static const String _keyProjects = 'projects';
+  static const String _keyTasks = 'tasks';
 
   bool get isOnboardingComplete {
     return _prefs.getBool(_keyOnboardingConmplete) ?? false;
@@ -260,5 +262,37 @@ class StorageService {
     final projects = await getProjects();
     projects.removeWhere((p) => p.id == projectId);
     await saveProjects(projects);
+    await deleteTasksByProjectId(projectId);
+  }
+
+  // ==================
+  // crud task
+  // ==================
+
+  Future<List<Task>> getTasks() async {
+    final data = _prefs.getString(_keyTasks);
+    if (data == null || data.trim().isEmpty) return [];
+
+    try {
+      final decoded = jsonDecode(data);
+      if (decoded is! List) return [];
+
+      return decoded.map((e) {
+        return Task.fromMap(Map<String, dynamic>.from(e as Map));
+      }).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> saveTasks(List<Task> tasks) async {
+    final encoded = jsonEncode(tasks.map((t) => t.toMap()).toList());
+    await _prefs.setString(_keyTasks, encoded);
+  }
+
+  Future<void> deleteTasksByProjectId(String projectId) async {
+    final tasks = await getTasks();
+    tasks.removeWhere((t) => t.projectId == projectId);
+    await saveTasks(tasks);
   }
 }
