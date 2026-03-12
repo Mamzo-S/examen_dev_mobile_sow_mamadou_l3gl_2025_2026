@@ -12,23 +12,32 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final String userName = 'Mamadou Sow';
-  final String userEmail = 'test@gmail.com';
+  // exemple de donnee pour le drawer
+  final String userName = "Mamadou Sow";
+  final String userEmail = "test@gmail.com";
 
-  final List<Widget> _screens = const [
-    Center(child: Text('Dashboard Screen')),
-    Center(child: Text('Projects Screen')),
-    Center(child: Text('Tasks Screen')),
-    Center(child: Text('Profile Screen')),
+  // Liste des ecrans pour chaque onglet
+  final List<Widget> _screens = [
+    const Center(child: Text("Dashboard Screen")),
+    const Center(child: Text("Projects Screen")),
+    const Center(child: Text("Tasks Screen")),
+    const Center(child: Text("Profile Screen")),
   ];
 
-  bool get _showFab => _currentIndex == 0 || _currentIndex == 1;
+  // on verifie si le FloatingActionButton doit etre afficher
+  bool get _showFAB => _currentIndex == 0 || _currentIndex == 1;
 
-  void _onTabTapped(int index) => setState(() => _currentIndex = index);
+  // pour changer l'onglet selectionne sur BottomNavigationBar et Drawer
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
-  void _onFabPressed() {
-    if (_showFab) {
-      debugPrint('Creer un nouveau projet');
+  void _onFABPressed() {
+    // pour ajouter un nouveau projet
+    if (_currentIndex == 0 || _currentIndex == 1) {
+      print("Créer un nouveau projet");
     }
   }
 
@@ -39,21 +48,26 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(AppStrings.appName),
         backgroundColor: AppColors.primary,
       ),
+
+      // le drawer (menu lateral)
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
+            // Entete du drawer affichant nom, email et avatar
             UserAccountsDrawerHeader(
               accountName: Text(userName),
               accountEmail: Text(userEmail),
               currentAccountPicture: CircleAvatar(
-                child: Text(userName.isNotEmpty ? userName[0] : '?'),
+                child: Text(userName[0]), // Première lettre du nom
               ),
-              decoration: const BoxDecoration(color: AppColors.primary),
+              decoration: BoxDecoration(color: AppColors.primary),
             ),
+
+            //liste des options de navigations
             ListTile(
               leading: const Icon(Icons.dashboard),
-              title: const Text('Dashboard'),
+              title: const Text("Dashboard"),
               onTap: () {
                 _onTabTapped(0);
                 Navigator.pop(context);
@@ -61,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.folder),
-              title: const Text('Projets'),
+              title: const Text("Projets"),
               onTap: () {
                 _onTabTapped(1);
                 Navigator.pop(context);
@@ -69,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.list),
-              title: const Text('Taches'),
+              title: const Text("Tâches"),
               onTap: () {
                 _onTabTapped(2);
                 Navigator.pop(context);
@@ -77,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Profil'),
+              title: const Text("Profil"),
               onTap: () {
                 _onTabTapped(3);
                 Navigator.pop(context);
@@ -86,22 +100,29 @@ class _HomeScreenState extends State<HomeScreen> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Deconnexion'),
+              title: const Text("Déconnexion"),
               onTap: () {
-                Navigator.pop(context);
+                //
               },
             ),
           ],
         ),
       ),
-      body: IndexedStack(index: _currentIndex, children: _screens),
-      floatingActionButton: _showFab
+
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+
+      floatingActionButton: _showFAB
           ? FloatingActionButton(
-              onPressed: _onFabPressed,
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.add),
-            )
+        onPressed: _onFABPressed,
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add),
+      )
           : null,
+
+      // bar de navigations en bas...
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
@@ -110,19 +131,19 @@ class _HomeScreenState extends State<HomeScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            label: "Dashboard",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.folder),
-            label: 'Projets',
+            label: "Projets",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Taches',
+            label: "Tâches",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Profil',
+            label: "Profil",
           ),
         ],
       ),
