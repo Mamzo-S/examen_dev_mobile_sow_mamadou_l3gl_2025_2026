@@ -36,7 +36,6 @@ class Task {
 
   factory Task.fromMap(Map<String, dynamic> map) {
     final statusRaw = (map['status'] ?? 'todo').toString();
-    final priorityRaw = (map['priority'] ?? 'medium').toString();
 
     TaskStatus parsedStatus = TaskStatus.todo;
     for (final s in TaskStatus.values) {
@@ -59,4 +58,3 @@ class Task {
     );
   }
 }
-

@@ -290,6 +290,35 @@ class StorageService {
     await _prefs.setString(_keyTasks, encoded);
   }
 
+  Future<List<Task>> getTasksByUserId(String userId) async {
+    final tasks = await getTasks();
+    return tasks.where((t) => t.userId == userId).toList();
+  }
+
+  Future<List<Task>> getTasksByProjectId(String projectId) async {
+    final tasks = await getTasks();
+    return tasks.where((t) => t.projectId == projectId).toList();
+  }
+
+  Future<void> saveTask(Task task) async {
+    final tasks = await getTasks();
+    final index = tasks.indexWhere((t) => t.id == task.id);
+
+    if (index == -1) {
+      tasks.add(task);
+    } else {
+      tasks[index] = task;
+    }
+
+    await saveTasks(tasks);
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    final tasks = await getTasks();
+    tasks.removeWhere((t) => t.id == taskId);
+    await saveTasks(tasks);
+  }
+
   Future<void> deleteTasksByProjectId(String projectId) async {
     final tasks = await getTasks();
     tasks.removeWhere((t) => t.projectId == projectId);
