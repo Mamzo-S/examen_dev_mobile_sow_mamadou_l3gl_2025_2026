@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sunu_task/core/constants/app_colors.dart';
+import 'package:sunu_task/core/constants/app_strings.dart';
 import 'package:sunu_task/models/task.dart';
 import 'package:sunu_task/providers/auth_provider.dart';
 import 'package:sunu_task/providers/project_provider.dart';
@@ -13,7 +14,7 @@ class DashboardTab extends StatelessWidget {
   String _greeting() {
     final h = DateTime.now().hour;
     if (h < 12) return 'Bonjour';
-    if (h < 18) return 'Bon apres-midi';
+    if (h < 18) return 'Bon après-midi';
     return 'Bonsoir';
   }
 
@@ -78,85 +79,109 @@ class DashboardTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () => _refresh(context),
-      child: Consumer2<ProjectProvider, TaskProvider>(
-        builder: (context, projectProvider, taskProvider, _) {
-          final counts = taskProvider.taskCountByStatus;
-          final taskCountsByProject = taskProvider.taskCountByProjectId;
-          final projects = projectProvider.projects;
+      child: Builder(
+        builder: (context) {
+          final auth = context.read<AuthProvider>();
+          final projectProvider = context.read<ProjectProvider>();
+          final taskProvider = context.read<TaskProvider>();
 
-          final recent = projects.take(3).toList();
-          final isLoading = projectProvider.isLoading || taskProvider.isLoading;
+          return ListenableBuilder(
+            listenable: Listenable.merge([auth, projectProvider, taskProvider]),
+            builder: (context, _) {
+              final user = auth.currentUser;
+              if (user == null) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(height: 120),
+                    Center(child: Text('Aucun utilisateur.')),
+                  ],
+                );
+              }
 
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              Text(
-                _greeting(),
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-              ),
-              if (isLoading) ...[
-                const SizedBox(height: 12),
-                const LinearProgressIndicator(),
-              ],
-              const SizedBox(height: 16),
-              Row(
+              final counts = taskProvider.taskCountByStatus;
+              final taskCountsByProject = taskProvider.taskCountByProjectId;
+              final projects = projectProvider.projects;
+
+              final recent = projects.take(3).toList();
+              final isLoading =
+                  auth.isLoading || projectProvider.isLoading || taskProvider.isLoading;
+
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                physics: const AlwaysScrollableScrollPhysics(),
                 children: [
-                  _statCard(
-                    'Projets',
-                    projectProvider.projectCount.toString(),
-                    AppColors.primary,
-                    Icons.folder_open_outlined,
+                  Text(
+                    _greeting(),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  _statCard(
-                    'A faire',
-                    (counts[TaskStatus.todo] ?? 0).toString(),
-                    AppColors.statusTodo,
-                    Icons.checklist_outlined,
+                  if (isLoading) ...[
+                    const SizedBox(height: 12),
+                    const LinearProgressIndicator(),
+                  ],
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      _statCard(
+                        AppStrings.projects,
+                        projectProvider.projectCount.toString(),
+                        AppColors.primary,
+                        Icons.folder_open_outlined,
+                      ),
+                      const SizedBox(width: 12),
+                      _statCard(
+                        AppStrings.statusTodo,
+                        (counts[TaskStatus.todo] ?? 0).toString(),
+                        AppColors.statusTodo,
+                        Icons.checklist_outlined,
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _statCard(
+                        AppStrings.statusInProgress,
+                        (counts[TaskStatus.inProgress] ?? 0).toString(),
+                        AppColors.statusInProgress,
+                        Icons.timelapse,
+                      ),
+                      const SizedBox(width: 12),
+                      _statCard(
+                        AppStrings.statusDone,
+                        (counts[TaskStatus.done] ?? 0).toString(),
+                        AppColors.statusDone,
+                        Icons.done_all,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 22),
+                  const Text(
+                    'Projets récents',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 10),
+                  if (recent.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 12),
+                      child: Center(
+                        child: Text('Aucun projet pour le moment.'),
+                      ),
+                    )
+                  else
+                    for (final p in recent)
+                      ProjectCard(
+                        project: p,
+                        taskCount: taskCountsByProject[p.id] ?? 0,
+                        onTap: () {},
+                      ),
+                  const SizedBox(height: 40),
                 ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  _statCard(
-                    'En cours',
-                    (counts[TaskStatus.inProgress] ?? 0).toString(),
-                    AppColors.statusInProgress,
-                    Icons.timelapse,
-                  ),
-                  const SizedBox(width: 12),
-                  _statCard(
-                    'Terminees',
-                    (counts[TaskStatus.done] ?? 0).toString(),
-                    AppColors.statusDone,
-                    Icons.done_all,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 22),
-              const Text(
-                'Projets recents',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 10),
-              if (recent.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: Center(
-                    child: Text('Aucun projet pour le moment.'),
-                  ),
-                )
-              else
-                for (final p in recent)
-                  ProjectCard(
-                    project: p,
-                    taskCount: taskCountsByProject[p.id] ?? 0,
-                    onTap: () {},
-                  ),
-              const SizedBox(height: 40),
-            ],
+              );
+            },
           );
         },
       ),
