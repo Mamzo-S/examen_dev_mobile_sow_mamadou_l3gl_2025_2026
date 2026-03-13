@@ -26,6 +26,53 @@ class ProjectsTab extends StatelessWidget {
     ]);
   }
 
+  Future<void> _confirmAndDeleteProject(
+    BuildContext context, {
+    required String projectId,
+    required String projectName,
+  }) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Supprimer le projet'),
+          content: Text(
+            'Supprimer "$projectName" ?\n'
+            'Toutes les taches associees seront aussi supprimees.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text(AppStrings.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              child: const Text(AppStrings.delete),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final auth = context.read<AuthProvider>();
+    final user = auth.currentUser;
+    if (user == null) return;
+
+    final projectProvider = context.read<ProjectProvider>();
+    final taskProvider = context.read<TaskProvider>();
+
+    await projectProvider.deleteProject(projectId);
+    await taskProvider.loadUserTasks(user.id);
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Projet supprime.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.read<AuthProvider>();
@@ -143,7 +190,11 @@ class ProjectsTab extends StatelessWidget {
                         ),
                       );
                     },
-                    onDelete: null,
+                    onDelete: () => _confirmAndDeleteProject(
+                      context,
+                      projectId: p.id,
+                      projectName: p.name,
+                    ),
                   ),
               const SizedBox(height: 40),
             ],

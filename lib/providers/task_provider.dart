@@ -28,6 +28,12 @@ class TaskProvider extends ChangeNotifier {
     return list;
   }
 
+  List<Task> get allTasks {
+    final list = _tasks.toList();
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
+  }
+
   Map<TaskStatus, int> get taskCountByStatus {
     final counts = <TaskStatus, int>{
       TaskStatus.todo: 0,

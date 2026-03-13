@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sunu_task/core/constants/app_colors.dart';
 import 'package:sunu_task/core/constants/app_strings.dart';
 import 'package:sunu_task/screens/home/tabs/dashboard_tab.dart';
+import 'package:sunu_task/screens/home/tabs/projects_tab.dart';
+import 'package:sunu_task/screens/home/tabs/profile_tab.dart';
+import 'package:sunu_task/screens/home/tabs/tasks_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,9 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // Liste des ecrans pour chaque onglet
   final List<Widget> _screens = const [
     const DashboardTab(),
-    const Center(child: Text("Projects Screen")),
-    const Center(child: Text("Tasks Screen")),
-    const Center(child: Text("Profile Screen")),
+    const ProjectsTab(),
+    const TasksTab(),
+    const ProfileTab(),
   ];
 
   // on verifie si le FloatingActionButton doit etre afficher

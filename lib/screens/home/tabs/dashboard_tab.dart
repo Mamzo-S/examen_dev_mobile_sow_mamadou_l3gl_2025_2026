@@ -6,6 +6,7 @@ import 'package:sunu_task/models/task.dart';
 import 'package:sunu_task/providers/auth_provider.dart';
 import 'package:sunu_task/providers/project_provider.dart';
 import 'package:sunu_task/providers/task_provider.dart';
+import 'package:sunu_task/screens/projects/project_detail_screen.dart';
 import 'package:sunu_task/widgets/cards/project_card.dart';
 
 class DashboardTab extends StatelessWidget {
@@ -176,7 +177,14 @@ class DashboardTab extends StatelessWidget {
                       ProjectCard(
                         project: p,
                         taskCount: taskCountsByProject[p.id] ?? 0,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProjectDetailScreen(project: p),
+                            ),
+                          );
+                        },
                       ),
                   const SizedBox(height: 40),
                 ],
