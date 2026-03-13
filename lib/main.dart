@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:sunu_task/core/theme/app_theme.dart';
 import 'package:sunu_task/providers/app_provider.dart';
 import 'package:sunu_task/providers/auth_provider.dart';
+import 'package:sunu_task/providers/project_provider.dart';
+import 'package:sunu_task/providers/task_provider.dart';
 import 'package:sunu_task/screens/splash/splash_screen.dart';
 import 'package:sunu_task/services/storage_service.dart';
 
@@ -24,6 +26,7 @@ class SunuTask extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AppProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProjectProvider()),
       ],
       child: MaterialApp(
         title: 'Sunu Task',

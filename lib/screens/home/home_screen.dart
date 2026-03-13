@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sunu_task/core/constants/app_colors.dart';
 import 'package:sunu_task/core/constants/app_strings.dart';
+import 'package:sunu_task/screens/home/tabs/dashboard_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,8 +18,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final String userEmail = "test@gmail.com";
 
   // Liste des ecrans pour chaque onglet
-  final List<Widget> _screens = [
-    const Center(child: Text("Dashboard Screen")),
+  final List<Widget> _screens = const [
+    const DashboardTab(),
     const Center(child: Text("Projects Screen")),
     const Center(child: Text("Tasks Screen")),
     const Center(child: Text("Profile Screen")),
