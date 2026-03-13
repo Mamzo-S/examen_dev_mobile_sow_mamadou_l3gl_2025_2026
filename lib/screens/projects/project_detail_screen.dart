@@ -8,6 +8,8 @@ import 'package:sunu_task/providers/auth_provider.dart';
 import 'package:sunu_task/providers/project_provider.dart';
 import 'package:sunu_task/providers/task_provider.dart';
 import 'package:sunu_task/screens/projects/project_form_screen.dart';
+import 'package:sunu_task/screens/tasks/task_detail_screen.dart';
+import 'package:sunu_task/screens/tasks/task_form_screen.dart';
 import 'package:sunu_task/widgets/cards/task_card.dart';
 
 class ProjectDetailScreen extends StatelessWidget {
@@ -114,10 +116,11 @@ class ProjectDetailScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Ajout de tache: on le fera avec TaskFormScreen.'),
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TaskFormScreen(projectId: project.id),
             ),
           );
         },
@@ -261,7 +264,14 @@ class ProjectDetailScreen extends StatelessWidget {
                   for (final t in tasks)
                     TaskCard(
                       task: t,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TaskDetailScreen(task: t),
+                          ),
+                        );
+                      },
                     ),
                 const SizedBox(height: 90),
               ],

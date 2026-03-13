@@ -174,21 +174,16 @@ class TaskCard extends StatelessWidget {
               ),
 
               // Date limite
-              Visibility(
-                visible: task.dueDate != null,
-                child: Column(
+              if (task.dueDate != null) ...[
+                const SizedBox(height: 10),
+                Row(
                   children: [
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(Icons.event, size: 18),
-                        const SizedBox(width: 6),
-                        Text(_formatDueDate(task.dueDate!)),
-                      ],
-                    ),
+                    const Icon(Icons.event, size: 18),
+                    const SizedBox(width: 6),
+                    Text(_formatDueDate(task.dueDate!)),
                   ],
                 ),
-              ),
+              ],
             ],
           ),
         ),
