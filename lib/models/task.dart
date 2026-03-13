@@ -1,5 +1,7 @@
 enum TaskStatus { todo, inProgress, done }
 
+enum TaskPriority { high, medium, low }
+
 class Task {
   final String id;
   final String projectId;
@@ -7,6 +9,7 @@ class Task {
   final String title;
   final String? description;
   final TaskStatus status;
+  final TaskPriority priority;
   final DateTime? dueDate;
   final DateTime createdAt;
 
@@ -17,6 +20,7 @@ class Task {
     required this.title,
     this.description,
     this.status = TaskStatus.todo,
+    this.priority = TaskPriority.medium,
     this.dueDate,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
@@ -29,6 +33,7 @@ class Task {
       'title': title,
       'description': description ?? '',
       'status': status.name,
+      'priority': priority.name,
       'dueDate': dueDate?.toIso8601String() ?? '',
       'createdAt': createdAt.toIso8601String(),
     };
@@ -42,6 +47,12 @@ class Task {
       if (s.name == statusRaw) parsedStatus = s;
     }
 
+    final priorityRaw = (map['priority'] ?? TaskPriority.medium.name).toString();
+    TaskPriority parsedPriority = TaskPriority.medium;
+    for (final p in TaskPriority.values) {
+      if (p.name == priorityRaw) parsedPriority = p;
+    }
+
     final dueRaw = (map['dueDate'] ?? '').toString();
     final due = dueRaw.isEmpty ? null : DateTime.tryParse(dueRaw);
 
@@ -52,6 +63,7 @@ class Task {
       title: (map['title'] ?? '').toString(),
       description: (map['description'] ?? '').toString(),
       status: parsedStatus,
+      priority: parsedPriority,
       dueDate: due,
       createdAt: DateTime.tryParse((map['createdAt'] ?? '').toString()) ??
           DateTime.now(),
