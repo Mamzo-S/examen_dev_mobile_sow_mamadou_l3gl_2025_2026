@@ -9,6 +9,7 @@ import 'package:sunu_task/screens/home/tabs/tasks_tab.dart';
 
 import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
+import '../projects/project_form_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,10 +43,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _onFABPressed() {
-    // pour ajouter un nouveau projet
+  void _onFABPressed(BuildContext context) {
     if (_currentIndex == 0 || _currentIndex == 1) {
-      print("Créer un nouveau projet");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProjectFormScreen(),
+        ),
+      );
     }
   }
 
@@ -83,6 +88,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final user = auth.currentUser;
     return Scaffold(
       appBar: AppBar(
         title: Text(AppStrings.appName),
@@ -96,10 +103,12 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Entete du drawer affichant nom, email et avatar
             UserAccountsDrawerHeader(
-              accountName: Text(userName),
-              accountEmail: Text(userEmail),
+              accountName: Text(user?.name ?? ''),
+              accountEmail: Text(user?.email ?? ''),
               currentAccountPicture: CircleAvatar(
-                child: Text(userName[0]), // Première lettre du nom
+                child: Text(
+                  user?.name.isNotEmpty == true ? user!.name[0] : '?',
+                ),
               ),
               decoration: BoxDecoration(color: AppColors.primary),
             ),
@@ -158,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       floatingActionButton: _showFAB
           ? FloatingActionButton(
-        onPressed: _onFABPressed,
+        onPressed: () => _onFABPressed(context),
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add),
       )
