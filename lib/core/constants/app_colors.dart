@@ -18,6 +18,20 @@ class AppColors {
   static const Color primaryLight = Color(0xFF64BBF1);
   static const Color primaryDark = Color(0xFF03436D);
 
+  //========= Palettes UI ==============
+
+  /// Palette de couleurs lors de la creation d'un projet.
+  static const List<Color> projectPalette = [
+    primary,
+    Color(0xFF22C55E),
+    Color(0xFFF59E0B),
+    Color(0xFFEF4444),
+    Color(0xFF8B5CF6),
+    Color(0xFF14B8A6),
+    Color(0xFF0EA5E9),
+    Color(0xFF64748B),
+  ];
+
   //========= Couleurs secondaires ==============
 
   static const Color secondary = Color(0xFF61E561);
