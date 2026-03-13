@@ -6,16 +6,21 @@ import 'package:uuid/uuid.dart';
 class TaskProvider extends ChangeNotifier {
   List<Task> _tasks = [];
   TaskStatus? _statusFilter;
+  TaskPriority? _priorityFilter;
   bool _isLoading = false;
 
   bool get isLoading => _isLoading;
   TaskStatus? get statusFilter => _statusFilter;
+  TaskPriority? get priorityFilter => _priorityFilter;
 
   // Taches filtrees + triees pour l'UI.
   List<Task> get tasks {
     Iterable<Task> result = _tasks;
     if (_statusFilter != null) {
       result = result.where((t) => t.status == _statusFilter);
+    }
+    if (_priorityFilter != null) {
+      result = result.where((t) => t.priority == _priorityFilter);
     }
 
     final list = result.toList();
@@ -75,6 +80,7 @@ class TaskProvider extends ChangeNotifier {
     required String title,
     String? description,
     TaskStatus status = TaskStatus.todo,
+    TaskPriority priority = TaskPriority.medium,
     DateTime? dueDate,
   }) async {
     _setLoading(true);
@@ -85,6 +91,7 @@ class TaskProvider extends ChangeNotifier {
       title: title,
       description: description,
       status: status,
+      priority: priority,
       dueDate: dueDate,
     );
 
@@ -134,6 +141,7 @@ class TaskProvider extends ChangeNotifier {
       title: current.title,
       description: current.description,
       status: status,
+      priority: current.priority,
       dueDate: current.dueDate,
       createdAt: current.createdAt,
     );
@@ -145,8 +153,14 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPriorityFilter(TaskPriority? priority) {
+    _priorityFilter = priority;
+    notifyListeners();
+  }
+
   void clearFilters() {
     _statusFilter = null;
+    _priorityFilter = null;
     notifyListeners();
   }
 }
